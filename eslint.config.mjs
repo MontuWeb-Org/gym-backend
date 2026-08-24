@@ -33,5 +33,13 @@ export default tseslint.config(
       'no-duplicate-imports': ['error', { allowSeparateTypeImports: true }],
     },
   },
+  // Add this new block to target your e2e and unit tests
+  {
+    files: ['test/**/*.ts', '**/*.spec.ts'],
+    rules: {
+      '@typescript-eslint/no-unsafe-call': 'off',
+      '@typescript-eslint/no-unsafe-member-access': 'off',
+      '@typescript-eslint/no-unsafe-return': 'off',
+    },
+  },
 );
-
