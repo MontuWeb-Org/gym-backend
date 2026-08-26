@@ -1,0 +1,120 @@
+erDiagram
+    USER {
+        int id PK
+        string phone
+        string name
+        enum role "COACH, TRAINEE"
+        datetime joined_at
+        string password
+    }
+
+    COACH {
+        int user_id PK, FK
+        string specialization
+        string experience
+        string description
+        string emergency_contact
+    }
+
+    TRAINEE {
+        int user_id PK, FK
+        string gender
+        date birth_date
+        json body_metrics
+        int coach_id FK 
+    }
+
+    COACH_SUBSCRIPTION_PLAN {
+        int id PK
+        string name
+        int max_trainees
+        decimal price
+        string billing_period
+    }
+
+    EXERCISE {
+        int id PK
+        string name
+        string description
+        string difficulty
+        string equipment
+        string[] illustration
+    }
+
+    EXERCISE_MUSCLE {
+        int exercise_id PK, FK 
+        string name
+    }
+
+    TRAINING_PLAN {
+        int id PK
+        string name
+        string description
+        string status
+        int coach_id FK
+        int trainee_id FK
+        int duration
+        bool is_fav
+    }
+
+    WORKOUT {
+        int id PK
+        string name
+        int order
+        int duration
+        int plan_id FK
+    }
+
+    WORKOUT_EXERCISE {
+        int exercise_id PK, FK
+        int workout_id PK, FK
+        int order
+        string reps
+        int sets
+        decimal rest_time
+        decimal duration
+        decimal weight 
+    }
+
+    WORKOUT_LOG {
+        int id PK
+        datetime end
+        string notes
+        int workout_id FK
+        int trainee_id FK
+    }
+
+    EXERCISE_LOG {
+        int id PK
+        int order
+        string status
+        int exercise_id FK
+        int workout_log_id FK
+    }
+
+    SET_LOG {
+        int id PK
+        int reps
+        decimal weight
+        int exercise_id FK
+    }
+
+    USER ||--o| COACH : "is a coach"
+    USER ||--o| TRAINEE : "is a trainee"
+ 
+    COACH ||--o{ TRAINING_PLAN : creates
+    COACH ||--o{ TRAINEE : manages 
+    COACH_SUBSCRIPTION_PLAN ||--o{ COACH : subscribes_to
+    TRAINING_PLAN ||--|| TRAINEE : assigned_to
+
+    
+    TRAINING_PLAN ||--|{ WORKOUT : contains
+    WORKOUT ||--|{ WORKOUT_EXERCISE : includes
+    EXERCISE ||--o{  WORKOUT_EXERCISE : "is an excersie" 
+    EXERCISE ||--|{ EXERCISE_MUSCLE : targets
+
+    TRAINEE ||--o{ WORKOUT_LOG : "has" 
+    WORKOUT ||--o| WORKOUT_LOG : records 
+    WORKOUT_LOG ||--o{  EXERCISE_LOG : includes
+    WORKOUT_EXERCISE ||--o| EXERCISE_LOG  : logs
+    EXERCISE_LOG ||--o{ SET_LOG : includes
