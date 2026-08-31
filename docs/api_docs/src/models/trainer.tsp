@@ -82,3 +82,19 @@ enum TraineeInfoStatus {
   @doc("Trainee is falling behind")
   FALLING_BEHIND,
 }
+
+model TrainerQuotaResponse {
+  @doc("Trainer quota")
+  maxTrainees: integer;
+
+  @doc("Trainer current trainees")
+  currentTrainees: integer;
+
+  @doc("Trainer renewal date")
+  renewalDate: utcDateTime;
+
+  @doc("Trainer subscription price")
+  price: decimal;
+}
+
+
