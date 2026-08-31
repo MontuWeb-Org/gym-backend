@@ -1,12 +1,246 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
+// Generated Prisma Schema
 generator client {
-  provider = "prisma-client"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
+}
+
+enum Role {
+  COACH
+  TRAINEE
+}
+
+enum Gender {
+  MALE
+  FEMALE
+}
+
+enum ActivationStatus {
+  ACTIVATED
+  PENDING
+}
+
+model User {
+  id               Int              @id @default(autoincrement())
+  phoneNumber      String           @unique @map("phone_number")
+  name             String
+  role             Role
+  passwordHash     String?          @map("password_hash")
+  coach            Coach?
+  trainee          Trainee?
+  activationStatus ActivationStatus
+  createdAt        DateTime         @default(now()) @map("created_at")
+  updatedAt        DateTime         @updatedAt @map("updated_at")
+
+  refreshTokens RefreshToken[]
+
+  @@map("users")
+}
+
+model RefreshToken {
+  id         Int       @id @default(autoincrement())
+  userId     Int       @map("user_id")
+  tokenHash  String    @unique @map("token_hash")
+  expiresAt  DateTime  @map("expires_at")
+  lastUsedAt DateTime? @map("last_used_at")
+  createdAt  DateTime  @default(now()) @map("created_at")
+  user       User      @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("refresh_tokens")
+}
+
+model Coach {
+  userId                  Int                   @id @map("user_id")
+  experience              String?
+  bio                     String?
+  user                    User                  @relation(fields: [userId], references: [id])
+  trainingPlans           TrainingPlan[]
+  trainees                Trainee[]
+  coachSubscriptionPlanId Int                   @map("coach_subscription_plan_id")
+  coachSubscriptionPlan   CoachSubscriptionPlan @relation(fields: [coachSubscriptionPlanId], references: [id])
+  createdAt               DateTime              @default(now()) @map("created_at")
+  updatedAt               DateTime              @updatedAt @map("updated_at")
+
+  @@map("coaches")
+}
+
+model Trainee {
+  userId       Int           @id @map("user_id")
+  gender       Gender
+  birthDate    DateTime      @map("birth_date")
+  bodyMetrics  Json          @map("body_metrics")
+  coachId      Int?          @map("coach_id")
+  user         User          @relation(fields: [userId], references: [id])
+  coach        Coach?        @relation(fields: [coachId], references: [userId])
+  trainingPlan TrainingPlan?
+  workoutLogs  WorkoutLog[]
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @updatedAt @map("updated_at")
+
+  @@map("trainees")
+}
+
+model CoachSubscriptionPlan {
+  id            Int      @id @default(autoincrement())
+  name          String
+  maxTrainees   Int      @map("max_trainees")
+  price         Decimal
+  billingPeriod String   @map("billing_period")
+  coaches       Coach[]
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  @@map("coach_subscription_plans")
+}
+
+model Exercise {
+  id               Int               @id @default(autoincrement())
+  name             String
+  instructions     String
+  difficulty       String
+  equipment        String
+  illustration     String[]
+  workoutExercises WorkoutExercise[]
+  exerciseMuscles  ExerciseMuscle[]
+  createdAt        DateTime          @default(now()) @map("created_at")
+  updatedAt        DateTime          @updatedAt @map("updated_at")
+
+  @@map("exercises")
+}
+
+model Muscle {
+  id          Int              @id @default(autoincrement())
+  commonName  String           @map("common_name")
+  bodyRegion  String           @map("body_region")
+  diagramUrl  String           @map("diagram_url")
+  description String?
+  exercises   ExerciseMuscle[]
+
+  @@map("muscles")
+}
+
+model ExerciseMuscle {
+  exerciseId Int    @id @map("exercise_id")
+  muscleId   Int    @map("muscle_id")
+  name       String
+
+  role     MuscleRole
+  muscle   Muscle     @relation(fields: [muscleId], references: [id])
+  exercise Exercise   @relation(fields: [exerciseId], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("exercise_muscles")
+}
+
+enum MuscleRole {
+  PRIMARY    @map("primary")
+  SECONDARY  @map("secondary")
+  STABILIZER @map("stabilizer")
+}
+
+enum TrainingPlanStatus {
+  IDLE
+  ACTIVE
+  COMPLETED
+}
+
+model TrainingPlan {
+  id            Int                @id @default(autoincrement())
+  name          String
+  description   String
+  status        TrainingPlanStatus
+  coachId       Int                @map("coach_id")
+  traineeId     Int                @unique @map("trainee_id")
+  durationDays  Int                @map("duration_days")
+  durationWeeks Int                @map("duration_weeks")
+  isFav         Boolean            @map("is_fav")
+  createdAt     DateTime           @default(now()) @map("created_at")
+  updatedAt     DateTime           @updatedAt @map("updated_at")
+  coach         Coach              @relation(fields: [coachId], references: [userId])
+  trainee       Trainee            @relation(fields: [traineeId], references: [userId])
+  workouts      Workout[]
+
+  @@map("training_plans")
+}
+
+model Workout {
+  id               Int               @id @default(autoincrement())
+  name             String
+  sequenceNumber   Int               @map("sequence_number")
+  durationMinutes  Int               @map("duration_minutes")
+  planId           Int               @map("plan_id")
+  trainingPlan     TrainingPlan      @relation(fields: [planId], references: [id])
+  workoutExercises WorkoutExercise[]
+  workoutLog       WorkoutLog?
+  createdAt        DateTime          @default(now()) @map("created_at")
+  updatedAt        DateTime          @updatedAt @map("updated_at")
+
+  @@map("workouts")
+}
+
+model WorkoutExercise {
+  exerciseId      Int          @map("exercise_id")
+  workoutId       Int          @map("workout_id")
+  sequenceNumber  Int          @map("sequence_number")
+  reps            String
+  sets            Int
+  restTimeSeconds Int          @map("rest_time_seconds")
+  durationMinutes Int          @map("duration_minutes")
+  weight          Decimal
+  createdAt       DateTime     @default(now()) @map("created_at")
+  updatedAt       DateTime     @updatedAt @map("updated_at")
+  workout         Workout      @relation(fields: [workoutId], references: [id])
+  exercise        Exercise     @relation(fields: [exerciseId], references: [id])
+  exerciseLog     ExerciseLog?
+
+  @@id([exerciseId, workoutId])
+  @@map("workout_exercises")
+}
+
+model WorkoutLog {
+  id           Int           @id @default(autoincrement())
+  notes        String
+  workoutId    Int           @unique @map("workout_id")
+  traineeId    Int           @map("trainee_id")
+  createdAt    DateTime      @default(now()) @map("created_at") // createdAt == startTime
+  updatedAt    DateTime      @updatedAt @map("updated_at")
+  end          DateTime
+  trainee      Trainee       @relation(fields: [traineeId], references: [userId])
+  workout      Workout       @relation(fields: [workoutId], references: [id])
+  exerciseLogs ExerciseLog[]
+
+  @@map("workout_logs")
+}
+
+model ExerciseLog {
+  id              Int             @id @default(autoincrement())
+  sequenceNumber  Int             @map("sequence_number")
+  status          String
+  exerciseId      Int             @map("exercise_id")
+  workoutId       Int             @map("workout_id")
+  workoutLogId    Int             @map("workout_log_id")
+  createdAt       DateTime        @default(now()) @map("created_at")
+  updatedAt       DateTime        @updatedAt @map("updated_at")
+  workoutLog      WorkoutLog      @relation(fields: [workoutLogId], references: [id])
+  workoutExercise WorkoutExercise @relation(fields: [workoutId, exerciseId], references: [workoutId, exerciseId])
+  setLogs         SetLog[]
+
+  @@unique([workoutId, exerciseId])
+  @@map("exercise_logs")
+}
+
+model SetLog {
+  id            Int         @id @default(autoincrement())
+  reps          String
+  weight        Decimal
+  exerciseLogId Int         @map("exercise_log_id")
+  exerciseLog   ExerciseLog @relation(fields: [exerciseLogId], references: [id])
+  createdAt     DateTime    @default(now()) @map("created_at")
+  updatedAt     DateTime    @updatedAt @map("updated_at")
+
+  @@map("set_logs")
 }
