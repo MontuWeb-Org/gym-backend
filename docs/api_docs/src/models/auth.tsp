@@ -1,4 +1,20 @@
+import "@typespec/http";
+
+using Http;
 namespace App.Models;
+
+@doc("JWT bearer token authentication")
+model BearerAuth {
+  type: "http";
+  scheme: "bearer";
+  bearerFormat: "JWT";
+}
+
+model SetAuthCookieResponse {
+  @header("Set-Cookie")
+  @doc("Contains the HTTP-only refresh token cookie for web clients.")
+  setCookie: string;
+}
 
 model CoachRegisterInitRequest {
   name: string;
@@ -21,15 +37,30 @@ model AuthResponse {
   accessToken: string;
 }
 
-model TraineeRegisterInitRequest {
+model InviteInitRequest {
   email: string;
 }
 
-model TraineeRegisterCompleteReqeust {
+enum TraineeStatus {
+  SETUP_PASSWORD,
+  ACCEPT_INVITATION,
+}
+model InviteVerifyResponse {
+  creationToken: string;
+  coachName: string;
+  status: TraineeStatus;
+}
+
+model InviteSetupPasswordRequest {
   creationToken: string;
   name: string;
   password: string;
   confirmPassword: string;
+}
+
+model InviteAcceptRequest {
+  creationToken: string;
+  accept: boolean;
 }
 
 model ForgetPasswordInitRequest {
@@ -52,8 +83,6 @@ model ChangePasswordRequest {
   newPassword: string;
   confirmNewPassword: string;
 }
-
-model ChangePasswordResponse {}
 
 model LoginRequest {
   identifier: string;
