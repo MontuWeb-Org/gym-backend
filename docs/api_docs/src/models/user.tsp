@@ -1,3 +1,32 @@
+import "@typespec/http";
+using Http;
+
+namespace App.Models;
+
+@doc("Update profile request — fields accepted for both trainers and trainees")
+model UpdateProfileRequest {
+  @doc("Display name")
+  name?: string;
+
+  @doc("Phone number")
+  phoneNumber?: string;
+
+  @doc("Trainer bio (trainer only)")
+  bio?: string;
+
+  @doc("Trainer years of experience (trainer only)")
+  experience?: string;
+
+  @doc("Trainee date of birth (trainee only)")
+  birthDate?: utcDateTime;
+
+  @doc("Trainee gender (trainee only)")
+  gender?: Gender;
+
+  @doc("Trainee body metrics JSON blob (trainee only)")
+  bodyMetrics?: unknown;
+}
+
 @doc("Trainer profile response")
 model TrainerProfileResponse {
   @doc("Trainer ID")
@@ -9,11 +38,46 @@ model TrainerProfileResponse {
   @doc("Trainer name")
   name: string;
 
-  @doc("Trainer business name")
-  buisnessName: string;
+  @doc("Trainer bio")
+  bio: string;
+
+  @doc("Trainer experience")
+  experience: string;
 
   @doc("Trainer phone number")
   phoneNumber: string;
+}
+
+@doc("Trainee profile response")
+model TraineeProfileResponse {
+  @doc("Trainee ID")
+  id: integer;
+
+  @doc("Trainee email")
+  email: string;
+
+  @doc("Trainee name")
+  name: string;
+
+  @doc("Trainee birthDate")
+  birthDate: utcDateTime;
+
+  @doc("Trainee gender")
+  gender: Gender;
+
+  @doc("Trainee phone number")
+  phoneNumber: string;
+
+  @doc("Trainee body metrics")
+  bodyMetrics: unknown;
+
+  @doc("Trainee Trainer")
+  trainer: TrainerProfileResponse;
+}
+
+enum Gender {
+  Male,
+  Female,
 }
 
 model TrainerDashboardResponse {}
@@ -81,6 +145,9 @@ enum TraineeInfoStatus {
 
   @doc("Trainee is falling behind")
   FALLING_BEHIND,
+
+  @doc("Trainee needs a plan")
+  NEEDS_PLAN,
 }
 
 model TrainerQuotaResponse {
@@ -95,6 +162,18 @@ model TrainerQuotaResponse {
 
   @doc("Trainer subscription price")
   price: decimal;
+
+  @doc("Trainer history")
+  history: {
+    @doc("status")
+    status: TrainerSubscriptionPlanStatus;
+
+    @doc("created at")
+    createdAt: utcDateTime;
+  }[];
 }
 
-
+enum TrainerSubscriptionPlanStatus {
+  PAID,
+  NOT_PAID,
+}

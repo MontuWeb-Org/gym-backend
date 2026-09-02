@@ -7,25 +7,28 @@ using TypeSpec.Http;
 
 @tag("Auth")
 @route("/auth")
+@useAuth(NoAuth)
 namespace App.Routes.Auth {
   @post
   @route("/register/init")
-  @summary("Register a new coach")
-  @doc("This endpoint is used to register a new coach. It will return a creation token that will be used to complete the registration process.")
-  op registerCoachInit(@body body: App.Models.DataResponse<App.Models.CoachRegisterInitRequest>):
-    | App.Models.DataResponse<App.Models.CoachRegisterInitResponse>
+  @summary("Register a new trainer")
+  @doc("This endpoint is used to register a new trainer. It will return a creation token that will be used to complete the registration process.")
+  op registerTrainerInit(
+    @body body: App.Models.DataResponse<App.Models.TrainerRegisterInitRequest>,
+  ):
+    | App.Models.DataResponse<App.Models.TrainerRegisterInitResponse>
     | App.Models.ValidationErrorResponse
     | App.Models.ConflictResponse
     | App.Models.InternalServerErrorResponse;
 
   @post
   @route("/register/complete")
-  @summary("Complete registration of a new coach")
-  @doc("Complete registration of a new coach")
-  op registerCoachComplete(
-    @body body: App.Models.DataResponse<App.Models.CoachRegisterCompleteRequest>,
+  @summary("Complete registration of a new trainer")
+  @doc("Complete registration of a new trainer")
+  op registerTrainerComplete(
+    @body body: App.Models.DataResponse<App.Models.TrainerRegisterCompleteRequest>,
   ):
-    | App.Models.DataResponse<App.Models.AuthResponse>
+    | (App.Models.DataResponse<App.Models.AuthResponse> & App.Models.SetAuthCookieResponse)
     | App.Models.ValidationErrorResponse
     | App.Models.BadRequestResponse
     | App.Models.InternalServerErrorResponse;
@@ -54,7 +57,7 @@ namespace App.Routes.Auth {
   @summary("Accept trainee registration")
   @doc("Accept trainee registration")
   op inviteAccept(@body body: App.Models.DataResponse<App.Models.InviteAcceptRequest>):
-    | App.Models.DataResponse<App.Models.AuthResponse>
+    | (App.Models.DataResponse<App.Models.AuthResponse> & App.Models.SetAuthCookieResponse)
     | App.Models.MessageResponse<"Trainee registration rejected.">
     | App.Models.NotFoundResponse
     | App.Models.ValidationErrorResponse
@@ -65,7 +68,7 @@ namespace App.Routes.Auth {
   @summary("Setup trainee registration")
   @doc("Setup trainee registration")
   op inviteSetup(@body body: App.Models.DataResponse<App.Models.InviteSetupPasswordRequest>):
-    | App.Models.DataResponse<App.Models.AuthResponse>
+    | (App.Models.DataResponse<App.Models.AuthResponse> & App.Models.SetAuthCookieResponse)
     | App.Models.ValidationErrorResponse
     | App.Models.NotFoundResponse
     | App.Models.InternalServerErrorResponse;
@@ -75,7 +78,7 @@ namespace App.Routes.Auth {
   @summary("Login")
   @doc("Login")
   op login(@body body: App.Models.DataResponse<App.Models.LoginRequest>):
-    | App.Models.DataResponse<App.Models.AuthResponse>
+    | (App.Models.DataResponse<App.Models.AuthResponse> & App.Models.SetAuthCookieResponse)
     | App.Models.ValidationErrorResponse
     | App.Models.NotFoundResponse
     | App.Models.InternalServerErrorResponse;
@@ -84,6 +87,7 @@ namespace App.Routes.Auth {
   @route("/logout")
   @summary("Logout")
   @doc("Logout")
+  @useAuth(App.Models.BearerAuth)
   op logout():
     | App.Models.MessageResponse<"Logout successfully.">
     | App.Models.InternalServerErrorResponse;
@@ -92,8 +96,9 @@ namespace App.Routes.Auth {
   @route("/refresh")
   @summary("Refresh authentication token")
   @doc("Refresh authentication token")
+  @useAuth(App.Models.BearerAuth)
   op refresh():
-    | App.Models.DataResponse<App.Models.AuthResponse>
+    | (App.Models.DataResponse<App.Models.AuthResponse> & App.Models.SetAuthCookieResponse)
     | App.Models.NotFoundResponse
     | App.Models.InternalServerErrorResponse;
 
@@ -114,7 +119,7 @@ namespace App.Routes.Auth {
   op forgetPasswordComplete(
     @body body: App.Models.DataResponse<App.Models.ForgetPasswordCompleteRequest>,
   ):
-    | App.Models.DataResponse<App.Models.AuthResponse>
+    | (App.Models.DataResponse<App.Models.AuthResponse> & App.Models.SetAuthCookieResponse)
     | App.Models.ValidationErrorResponse
     | App.Models.NotFoundResponse
     | App.Models.InternalServerErrorResponse;
@@ -123,6 +128,7 @@ namespace App.Routes.Auth {
   @route("/password/change")
   @summary("Change password")
   @doc("Change password")
+  @useAuth(App.Models.BearerAuth)
   op changePassword(@body body: App.Models.DataResponse<App.Models.ChangePasswordRequest>):
     | App.Models.MessageCreatedResponse<"Password changed successfully.">
     | App.Models.ValidationErrorResponse

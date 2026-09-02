@@ -16,7 +16,7 @@ model SetAuthCookieResponse {
   setCookie: string;
 }
 
-model CoachRegisterInitRequest {
+model TrainerRegisterInitRequest {
   name: string;
   phoneNumber: string;
   email: string;
@@ -24,11 +24,11 @@ model CoachRegisterInitRequest {
   confirmPassword: string;
 }
 
-model CoachRegisterInitResponse {
+model TrainerRegisterInitResponse {
   creationToken: string;
 }
 
-model CoachRegisterCompleteRequest {
+model TrainerRegisterCompleteRequest {
   otp: string;
   creationToken: string;
 }
@@ -47,7 +47,7 @@ enum TraineeStatus {
 }
 model InviteVerifyResponse {
   creationToken: string;
-  coachName: string;
+  trainerName: string;
   status: TraineeStatus;
 }
 

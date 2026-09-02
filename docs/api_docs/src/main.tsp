@@ -2,9 +2,13 @@ import "@typespec/http";
 import "@typespec/openapi";
 import "@typespec/openapi3";
 
-// Import your route modules here.
-// You don't need to import models unless main.tsp uses them directly.
+// Route modules
 import "./routes/auth.tsp";
+import "./routes/user.tsp";
+import "./routes/exercises.tsp";
+import "./routes/plans.tsp";
+import "./routes/logs.tsp";
+import "./models/auth.tsp";
 
 using TypeSpec.Http;
 using TypeSpec.OpenAPI;
@@ -13,4 +17,5 @@ using TypeSpec.OpenAPI;
 @info(#{ version: "1.0.0" })
 @server("https://api.example.com", "Production Environment")
 @route("/api")
+@useAuth(App.Models.BearerAuth)
 namespace App;
