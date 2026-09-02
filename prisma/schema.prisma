@@ -1,4 +1,3 @@
-// Generated Prisma Schema
 generator client {
   provider     = "prisma-client"
   output       = "../generated/prisma"
@@ -58,7 +57,7 @@ model Coach {
   experience              String?
   bio                     String?
   user                    User                  @relation(fields: [userId], references: [id])
-  trainingPlans           TrainingPlan[]
+  planTemplates           PlanTemplate[]
   trainees                Trainee[]
   coachSubscriptionPlanId Int                   @map("coach_subscription_plan_id")
   coachSubscriptionPlan   CoachSubscriptionPlan @relation(fields: [coachSubscriptionPlanId], references: [id])
@@ -69,17 +68,17 @@ model Coach {
 }
 
 model Trainee {
-  userId       Int           @id @map("user_id")
-  gender       Gender
-  birthDate    DateTime      @map("birth_date")
-  bodyMetrics  Json          @map("body_metrics")
-  coachId      Int?          @map("coach_id")
-  user         User          @relation(fields: [userId], references: [id])
-  coach        Coach?        @relation(fields: [coachId], references: [userId])
-  trainingPlan TrainingPlan?
-  workoutLogs  WorkoutLog[]
-  createdAt    DateTime      @default(now()) @map("created_at")
-  updatedAt    DateTime      @updatedAt @map("updated_at")
+  userId          Int              @id @map("user_id")
+  gender          Gender
+  birthDate       DateTime         @map("birth_date")
+  bodyMetrics     Json             @map("body_metrics")
+  coachId         Int?             @map("coach_id")
+  user            User             @relation(fields: [userId], references: [id])
+  coach           Coach?           @relation(fields: [coachId], references: [userId])
+  planAssignments PlanAssignment[]
+  workoutLogs     WorkoutLog[]
+  createdAt       DateTime         @default(now()) @map("created_at")
+  updatedAt       DateTime         @updatedAt @map("updated_at")
 
   @@map("trainees")
 }
@@ -98,16 +97,16 @@ model CoachSubscriptionPlan {
 }
 
 model Exercise {
-  id               Int               @id @default(autoincrement())
-  name             String
-  instructions     String
-  difficulty       String
-  equipment        String
-  illustration     String[]
-  workoutExercises WorkoutExercise[]
-  exerciseMuscles  ExerciseMuscle[]
-  createdAt        DateTime          @default(now()) @map("created_at")
-  updatedAt        DateTime          @updatedAt @map("updated_at")
+  id                       Int                       @id @default(autoincrement())
+  name                     String
+  instructions             String
+  difficulty               String
+  equipment                String
+  illustration             String[]
+  workoutExerciseTemplates WorkoutExerciseTemplate[]
+  exerciseMuscles          ExerciseMuscle[]
+  createdAt                DateTime                  @default(now()) @map("created_at")
+  updatedAt                DateTime                  @updatedAt @map("updated_at")
 
   @@map("exercises")
 }
@@ -144,94 +143,153 @@ enum MuscleRole {
   STABILIZER @map("stabilizer")
 }
 
-enum TrainingPlanStatus {
+enum PlanTemplateStatus {
+  DRAFT
+  ACTIVE
+}
+
+model PlanTemplate {
+  id                    Int                @id @default(autoincrement())
+  name                  String
+  description           String
+  status                PlanTemplateStatus
+  coachId               Int                @map("coach_id")
+  durationWeekTemplates Int                @map("duration_weekTemplates")
+  isFav                 Boolean            @map("is_fav")
+  createdAt             DateTime           @default(now()) @map("created_at")
+  updatedAt             DateTime           @updatedAt @map("updated_at")
+  coach                 Coach              @relation(fields: [coachId], references: [userId])
+  weekTemplates         WeekTemplate[]
+  planAssignments       PlanAssignment[]
+
+  @@map("plan_templates")
+}
+
+enum PlanAssignmentStatus {
   IDLE
   ACTIVE
   COMPLETED
 }
 
-model TrainingPlan {
-  id            Int                @id @default(autoincrement())
-  name          String
-  description   String
-  status        TrainingPlanStatus
-  coachId       Int                @map("coach_id")
-  traineeId     Int                @unique @map("trainee_id")
-  durationDays  Int                @map("duration_days")
-  durationWeeks Int                @map("duration_weeks")
-  isFav         Boolean            @map("is_fav")
-  createdAt     DateTime           @default(now()) @map("created_at")
-  updatedAt     DateTime           @updatedAt @map("updated_at")
-  coach         Coach              @relation(fields: [coachId], references: [userId])
-  trainee       Trainee            @relation(fields: [traineeId], references: [userId])
-  workouts      Workout[]
+model PlanAssignment {
+  id             Int                  @id @default(autoincrement())
+  status         PlanAssignmentStatus
+  traineeId      Int                  @map("trainee_id")
+  planTemplateId Int                  @map("plan_template_id")
+  createdAt      DateTime             @default(now()) @map("created_at")
+  startedAt      DateTime?            @map("started_at")
+  completedAt    DateTime?            @map("completed_at")
+  updatedAt      DateTime             @updatedAt @map("updated_at")
+  trainee        Trainee              @relation(fields: [traineeId], references: [userId])
+  planTemplate   PlanTemplate         @relation(fields: [planTemplateId], references: [id])
+  exerciseLogs   ExerciseLog[]
+  workoutLogs    WorkoutLog[]
 
   @@map("training_plans")
 }
 
-model Workout {
-  id               Int               @id @default(autoincrement())
-  name             String
-  sequenceNumber   Int               @map("sequence_number")
-  durationMinutes  Int               @map("duration_minutes")
-  planId           Int               @map("plan_id")
-  trainingPlan     TrainingPlan      @relation(fields: [planId], references: [id])
-  workoutExercises WorkoutExercise[]
-  workoutLog       WorkoutLog?
-  createdAt        DateTime          @default(now()) @map("created_at")
-  updatedAt        DateTime          @updatedAt @map("updated_at")
+model WeekTemplate {
+  id             Int               @id @default(autoincrement())
+  sequenceNumber Int               @map("sequence_number")
+  planTemplateId Int               @map("plan_template_id")
+  planTemplate   PlanTemplate      @relation(fields: [planTemplateId], references: [id])
+  workouts       WorkoutTemplate[]
+  createdAt      DateTime          @default(now()) @map("created_at")
+  updatedAt      DateTime          @updatedAt @map("updated_at")
+
+  @@map("week_templates")
+}
+
+model WorkoutTemplate {
+  id                       Int                       @id @default(autoincrement())
+  name                     String
+  sequenceNumber           Int                       @map("sequence_number")
+  durationMinutes          Int                       @map("duration_minutes")
+  weekTemplateId           Int                       @map("weekTemplate_id")
+  weekTemplate             WeekTemplate              @relation(fields: [weekTemplateId], references: [id])
+  workoutExerciseTemplates WorkoutExerciseTemplate[]
+  workoutLogs              WorkoutLog[]
+  createdAt                DateTime                  @default(now()) @map("created_at")
+  updatedAt                DateTime                  @updatedAt @map("updated_at")
 
   @@map("workouts")
 }
 
-model WorkoutExercise {
-  exerciseId      Int          @map("exercise_id")
-  workoutId       Int          @map("workout_id")
-  sequenceNumber  Int          @map("sequence_number")
-  reps            String
-  sets            Int
-  restTimeSeconds Int          @map("rest_time_seconds")
-  durationMinutes Int          @map("duration_minutes")
-  weight          Decimal
-  createdAt       DateTime     @default(now()) @map("created_at")
-  updatedAt       DateTime     @updatedAt @map("updated_at")
-  workout         Workout      @relation(fields: [workoutId], references: [id])
-  exercise        Exercise     @relation(fields: [exerciseId], references: [id])
-  exerciseLog     ExerciseLog?
+model WorkoutExerciseTemplate {
+  id                     Int             @id @default(autoincrement())
+  exerciseId             Int             @map("exercise_id")
+  workoutTemplateId      Int             @map("workout_id")
+  sequenceNumber         Int             @map("sequence_number")
+  defautlReps            String          @map("default_reps")
+  defaultSets            Int             @map("default_sets")
+  defaultRestTimeSeconds Int             @map("default_rest_time_seconds")
+  defautlDurationMinutes Int             @map("default_duration_minutes")
+  defaultWeight          Decimal         @map("default_weight")
+  createdAt              DateTime        @default(now()) @map("created_at")
+  updatedAt              DateTime        @updatedAt @map("updated_at")
+  workout                WorkoutTemplate @relation(fields: [workoutTemplateId], references: [id])
+  exercise               Exercise        @relation(fields: [exerciseId], references: [id])
+  exerciseLogs           ExerciseLog[]
 
-  @@id([exerciseId, workoutId])
-  @@map("workout_exercises")
+  @@map("workout_exercise_templates")
+}
+
+model WorkoutExerciseOverride {
+  id                        Int      @id @default(autoincrement())
+  planAssignmentId          Int      @map("plan_assignment_id")
+  workoutExerciseTemplateId Int      @map("workout_exercise_template_id")
+  weight                    Decimal?
+  sets                      Int?
+  reps                      String?
+  restSeconds               Int?
 }
 
 model WorkoutLog {
-  id           Int           @id @default(autoincrement())
-  notes        String
-  workoutId    Int           @unique @map("workout_id")
-  traineeId    Int           @map("trainee_id")
-  createdAt    DateTime      @default(now()) @map("created_at") // createdAt == startTime
-  updatedAt    DateTime      @updatedAt @map("updated_at")
-  end          DateTime
-  trainee      Trainee       @relation(fields: [traineeId], references: [userId])
-  workout      Workout       @relation(fields: [workoutId], references: [id])
-  exerciseLogs ExerciseLog[]
+  id                Int              @id @default(autoincrement())
+  notes             String?
+  status            WorkoutLogStatus @default(IN_PROGRESS) @map("status")
+  workoutTemplateId Int              @map("workout_template_id")
+  planAssignmentId  Int              @map("plan_assignment_id")
+  createdAt         DateTime         @default(now()) @map("created_at") // session start
+  updatedAt         DateTime         @updatedAt @map("updated_at")
+  end               DateTime?
+
+  workoutTemplate WorkoutTemplate @relation(fields: [workoutTemplateId], references: [id])
+  planAssignment  PlanAssignment  @relation(fields: [planAssignmentId], references: [id])
+  exerciseLogs    ExerciseLog[]
+  trainee         Trainee?        @relation(fields: [traineeUserId], references: [userId])
+  traineeUserId   Int?
 
   @@map("workout_logs")
 }
 
-model ExerciseLog {
-  id              Int             @id @default(autoincrement())
-  sequenceNumber  Int             @map("sequence_number")
-  status          String
-  exerciseId      Int             @map("exercise_id")
-  workoutId       Int             @map("workout_id")
-  workoutLogId    Int             @map("workout_log_id")
-  createdAt       DateTime        @default(now()) @map("created_at")
-  updatedAt       DateTime        @updatedAt @map("updated_at")
-  workoutLog      WorkoutLog      @relation(fields: [workoutLogId], references: [id])
-  workoutExercise WorkoutExercise @relation(fields: [workoutId, exerciseId], references: [workoutId, exerciseId])
-  setLogs         SetLog[]
+enum WorkoutLogStatus {
+  IN_PROGRESS
+  COMPLETED
+  ABANDONED
+}
 
-  @@unique([workoutId, exerciseId])
+model ExerciseLog {
+  id                        Int    @id @default(autoincrement())
+  sequenceNumber            Int    @map("sequence_number")
+  status                    String
+  workoutLogId              Int    @map("workout_log_id")
+  workoutExerciseTemplateId Int    @map("workout_exercise_template_id")
+  planAssignmentId          Int    @map("plan_assignment_id")
+
+  loggedSets            Int     @map("logged_sets")
+  loggedReps            String  @map("logged_reps")
+  loggedWeight          Decimal @map("logged_weight")
+  loggedRestTimeSeconds Int?    @map("logged_rest_time_seconds")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  workoutLog              WorkoutLog              @relation(fields: [workoutLogId], references: [id])
+  workoutExerciseTemplate WorkoutExerciseTemplate @relation(fields: [workoutExerciseTemplateId], references: [id])
+  planAssignment          PlanAssignment          @relation(fields: [planAssignmentId], references: [id])
+  setLogs                 SetLog[]
+
   @@map("exercise_logs")
 }
 
