@@ -12,7 +12,7 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
     @Inject(prismaConfig.KEY)
     private readonly config: ConfigType<typeof prismaConfig>,
   ) {
-    const adapter = new PrismaPg({ connectionString: config.url! });
+    const adapter = new PrismaPg({ connectionString: config.url });
     super({
       adapter,
       log: [

@@ -6,15 +6,17 @@ import { ConfigModule } from '@nestjs/config';
 import jwtConfig from '@/jwt/jwt.config';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy, LocalStrategy } from './strategies';
-import { JwtAuthGuard, LocalAuthGuard } from './guards/auth.guard';
+import { JwtAuthGuard, LocalAuthGuard } from './guards';
 import { JwtModule } from '@/jwt/jwt.module';
 import { RefreshTokenModule } from '@/refresh-token/refresh-token.module';
+import refreshTokenConfig from '@/refresh-token/refresh-token.config';
 
 @Module({
   imports: [
     UserModule,
     RefreshTokenModule,
     ConfigModule.forFeature(jwtConfig),
+    ConfigModule.forFeature(refreshTokenConfig),
     JwtModule,
     PassportModule.register({ defaultStrategy: 'jwt' }),
   ],

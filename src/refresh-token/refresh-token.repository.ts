@@ -29,6 +29,13 @@ export class RefreshTokenRepository {
       where: {
         userId,
       },
+      include: {
+        user: {
+          select: {
+            role: true,
+          },
+        },
+      },
     });
   }
 
@@ -36,6 +43,13 @@ export class RefreshTokenRepository {
     return await this.prismaService.refreshToken.findUnique({
       where: {
         tokenHash: token,
+      },
+      include: {
+        user: {
+          select: {
+            role: true,
+          },
+        },
       },
     });
   }

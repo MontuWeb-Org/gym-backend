@@ -45,8 +45,12 @@ export class RefreshTokenService {
     return await this.refreshTokenRepository.findByToken(hash);
   }
 
-  async updateTokenHash(id: number, newHash: string, expiresAt: Date) {
-    return await this.refreshTokenRepository.updateTokenHashById(id, newHash, expiresAt);
+  async updateTokenHash(tokenId: number) {
+    const { refreshToken, hashedRefreshToken, expiresAt } = this.generateRefreshTokenWithExpiry(
+      this.config.refreshExpiresInDays,
+    );
+    await this.refreshTokenRepository.updateTokenHashById(tokenId, hashedRefreshToken, expiresAt);
+    return { refreshToken };
   }
 
   async deleteTokensById(id: number) {
