@@ -1,8 +1,8 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { RefreshTokenRepository } from './refresh-token.repository';
-import { RefreshToken } from '@/refresh-token/interfaces';
-import { PrismaService } from '@/prisma/prisma.service';
 import * as crypto from 'crypto';
+import refreshTokenConfig from './refresh-token.config';
+import { ConfigType } from '@nestjs/config';
 
 @Injectable()
 export class RefreshTokenService {
@@ -10,8 +10,17 @@ export class RefreshTokenService {
 
   constructor(
     private readonly refreshTokenRepository: RefreshTokenRepository,
-    private readonly prisma: PrismaService,
+    @Inject(refreshTokenConfig.KEY)
+    private readonly config: ConfigType<typeof refreshTokenConfig>,
   ) {}
+
+  private generateRefreshTokenWithExpiry(expiryInDays: number) {
+    const refreshToken = crypto.randomBytes(64).toString('hex');
+    const expiresAt = new Date();
+    const hashedRefreshToken = this.hashStringDeterministic(refreshToken);
+    expiresAt.setDate(expiresAt.getDate() + expiryInDays);
+    return { refreshToken, hashedRefreshToken, expiresAt };
+  }
 
   hashStringDeterministic(str: string): string {
     const hash = crypto.createHash('sha256');
@@ -19,10 +28,17 @@ export class RefreshTokenService {
     return hash.digest('hex');
   }
 
-  async createRefreshToken(refreshToken: RefreshToken) {
-    const token = await this.refreshTokenRepository.create(refreshToken);
-    this.logger.log('Refresh token created successfully for user ID: ' + refreshToken.userId);
-    return token;
+  async createRefreshToken(userId: number) {
+    const { refreshToken, hashedRefreshToken, expiresAt } = this.generateRefreshTokenWithExpiry(
+      this.config.refreshExpiresInDays,
+    );
+    const token = await this.refreshTokenRepository.create({
+      userId,
+      tokenHash: hashedRefreshToken,
+      expiresAt,
+    });
+    this.logger.log('Refresh token created successfully for user ID: ' + userId);
+    return { ...token, refreshToken };
   }
 
   async getTokenByHash(hash: string) {
