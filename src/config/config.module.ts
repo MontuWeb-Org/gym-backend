@@ -11,4 +11,4 @@ import { AppConfig, configValue } from '@/config/app-config';
   ],
   exports: [AppConfig],
 })
-export class ConfigModule { }
+export class ConfigModule {}
