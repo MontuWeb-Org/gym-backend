@@ -35,19 +35,17 @@ jobs:
         run: |
           npx --prefix docs/api_docs tsp compile docs/api_docs/src/main.tsp \
             --output-dir "{project-root}/generated-docs"
-
+      
       - name: Commit and push changes
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          # Stage the actual directory TypeSpec emitted to
           git add docs/api_docs/generated-docs/
 
           if git diff --staged --quiet; then
             echo "No changes detected."
           else
             git commit -m "chore(docs): auto-generate openapi.yaml [skip ci]"
-            # On pull_request, HEAD points to the merge ref, so push back to the PR branch:
-            git push origin HEAD:${{ github.head_ref }}
+            git push origin dev
           fi
