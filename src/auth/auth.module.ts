@@ -6,7 +6,7 @@ import { ConfigModule } from '@nestjs/config';
 import jwtConfig from '@/jwt/jwt.config';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy, LocalStrategy } from './strategies';
-import { JwtAuthGuard, LocalAuthGuard } from './guards/auth.guard';
+import { JwtAuthGuard, LocalAuthGuard } from './guards';
 import { JwtModule } from '@/jwt/jwt.module';
 import { RefreshTokenModule } from '@/refresh-token/refresh-token.module';
 import refreshTokenConfig from '@/refresh-token/refresh-token.config';
@@ -23,4 +23,4 @@ import refreshTokenConfig from '@/refresh-token/refresh-token.config';
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy, LocalStrategy, LocalAuthGuard, JwtAuthGuard],
 })
-export class AuthModule { }
+export class AuthModule {}

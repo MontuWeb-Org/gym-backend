@@ -4,7 +4,7 @@ import { RefreshToken } from '@/refresh-token/interfaces';
 
 @Injectable()
 export class RefreshTokenRepository {
-  constructor(private readonly prismaService: PrismaService) { }
+  constructor(private readonly prismaService: PrismaService) {}
 
   async create(refreshToken: RefreshToken) {
     return await this.prismaService.refreshToken.create({
@@ -29,6 +29,13 @@ export class RefreshTokenRepository {
       where: {
         userId,
       },
+      include: {
+        user: {
+          select: {
+            role: true,
+          },
+        },
+      },
     });
   }
 
@@ -36,6 +43,13 @@ export class RefreshTokenRepository {
     return await this.prismaService.refreshToken.findUnique({
       where: {
         tokenHash: token,
+      },
+      include: {
+        user: {
+          select: {
+            role: true,
+          },
+        },
       },
     });
   }
