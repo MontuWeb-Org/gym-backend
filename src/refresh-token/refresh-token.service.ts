@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { RefreshTokenRepository } from './refresh-token.repository';
-import { RefreshToken } from '@generated/prisma/client';
+import { RefreshToken } from '@/refresh-token/interfaces';
 import { PrismaService } from '@/prisma/prisma.service';
 import * as crypto from 'crypto';
 
