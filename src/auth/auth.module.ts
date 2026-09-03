@@ -9,16 +9,18 @@ import { JwtStrategy, LocalStrategy } from './strategies';
 import { JwtAuthGuard, LocalAuthGuard } from './guards/auth.guard';
 import { JwtModule } from '@/jwt/jwt.module';
 import { RefreshTokenModule } from '@/refresh-token/refresh-token.module';
+import refreshTokenConfig from '@/refresh-token/refresh-token.config';
 
 @Module({
   imports: [
     UserModule,
     RefreshTokenModule,
     ConfigModule.forFeature(jwtConfig),
+    ConfigModule.forFeature(refreshTokenConfig),
     JwtModule,
     PassportModule.register({ defaultStrategy: 'jwt' }),
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy, LocalStrategy, LocalAuthGuard, JwtAuthGuard],
 })
-export class AuthModule {}
+export class AuthModule { }
