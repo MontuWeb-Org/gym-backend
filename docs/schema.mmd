@@ -3,12 +3,12 @@ erDiagram
         int id PK
         string phone
         string name
-        enum role "COACH, TRAINEE"
+        enum role "TRAINER, TRAINEE"
         datetime joined_at
         string password
     }
 
-    COACH {
+    TRAINER {
         int user_id PK, FK
         string specialization
         string experience
@@ -21,10 +21,10 @@ erDiagram
         string gender
         date birth_date
         json body_metrics
-        int coach_id FK 
+        int trainer_id FK 
     }
 
-    COACH_SUBSCRIPTION_PLAN {
+    TRAINER_SUBSCRIPTION_PLAN {
         int id PK
         string name
         int max_trainees
@@ -51,7 +51,7 @@ erDiagram
         string name
         string description
         string status
-        int coach_id FK
+        int trainer_id FK
         int trainee_id FK
         int duration
         bool is_fav
@@ -99,12 +99,12 @@ erDiagram
         int exercise_id FK
     }
 
-    USER ||--o| COACH : "is a coach"
+    USER ||--o| TRAINER : "is a trainer"
     USER ||--o| TRAINEE : "is a trainee"
  
-    COACH ||--o{ TRAINING_PLAN : creates
-    COACH ||--o{ TRAINEE : manages 
-    COACH_SUBSCRIPTION_PLAN ||--o{ COACH : subscribes_to
+    TRAINER ||--o{ TRAINING_PLAN : creates
+    TRAINER ||--o{ TRAINEE : manages 
+    TRAINER_SUBSCRIPTION_PLAN ||--o{ TRAINER : subscribes_to
     TRAINING_PLAN ||--|| TRAINEE : assigned_to
 
     
