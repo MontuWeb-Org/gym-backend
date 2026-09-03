@@ -1,11 +1,4 @@
 $schema: https://api.gitbook.com/gitbook-docs.yaml
 site:
   title: montu
-  structure:
-    - type: space
-      key: space-1
-      title: API Reference
-      path: api-reference
-      default: true
-      content:
-        directory: ./api-reference
+  structure: []
