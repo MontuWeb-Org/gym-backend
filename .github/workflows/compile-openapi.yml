@@ -1,51 +1,51 @@
-name: Compile TypeSpec & Sync OpenAPI
+# name: Compile TypeSpec & Sync OpenAPI
 
-on:
-  push:
-    branches:
-      - dev
-    paths:
-      - 'docs/api_docs/**'
-      - '.github/workflows/compile-openapi.yml'
-  workflow_dispatch:
+# on:
+#   push:
+#     branches:
+#       - dev
+#     paths:
+#       - 'docs/api_docs/**'
+#       - '.github/workflows/compile-openapi.yml'
+#   workflow_dispatch:
 
-permissions:
-  contents: write
+# permissions:
+#   contents: write
 
-jobs:
-  build-and-commit:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+# jobs:
+#   build-and-commit:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout repository
+#         uses: actions/checkout@v4
+#         with:
+#           fetch-depth: 0
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: 'npm'
-          cache-dependency-path: docs/api_docs/package-lock.json
+#       - name: Setup Node.js
+#         uses: actions/setup-node@v4
+#         with:
+#           node-version: 22
+#           cache: 'npm'
+#           cache-dependency-path: docs/api_docs/package-lock.json
 
-      - name: Install TypeSpec dependencies
-        run: npm ci --prefix docs/api_docs
+#       - name: Install TypeSpec dependencies
+#         run: npm ci --prefix docs/api_docs
 
-      - name: Compile TypeSpec to committed docs path
-        run: |
-          npx --prefix docs/api_docs tsp compile docs/api_docs/src/main.tsp \
-            --output-dir "{project-root}/generated-docs"
+#       - name: Compile TypeSpec to committed docs path
+#         run: |
+#           npx --prefix docs/api_docs tsp compile docs/api_docs/src/main.tsp \
+#             --output-dir "{project-root}/generated-docs"
       
-      - name: Commit and push changes
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+#       - name: Commit and push changes
+#         run: |
+#           git config user.name "github-actions[bot]"
+#           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          git add docs/api_docs/generated-docs/
+#           git add docs/api_docs/generated-docs/
 
-          if git diff --staged --quiet; then
-            echo "No changes detected."
-          else
-            git commit -m "chore(docs): auto-generate openapi.yaml [skip ci]"
-            git push origin dev
-          fi
+#           if git diff --staged --quiet; then
+#             echo "No changes detected."
+#           else
+#             git commit -m "chore(docs): auto-generate openapi.yaml [skip ci]"
+#             git push origin dev
+#           fi

@@ -1,16 +1,20 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { Redis } from 'ioredis';
-import { AppConfig } from '@/config/app-config';
+import redisConfig from './redis.config';
+import { ConfigType } from '@nestjs/config';
 
 @Injectable()
 export class RedisService {
   private readonly logger = new Logger(RedisService.name);
   private readonly redis: Redis;
 
-  constructor(private readonly config: AppConfig) {
+  constructor(
+    @Inject(redisConfig.KEY)
+    private readonly config: ConfigType<typeof redisConfig>,
+  ) {
     this.redis = new Redis({
-      port: this.config.redis.port,
-      host: this.config.redis.host,
+      port: this.config.port,
+      host: this.config.host,
       maxRetriesPerRequest: null,
       enableReadyCheck: true,
       retryStrategy: (times) => {
@@ -20,7 +24,7 @@ export class RedisService {
     });
 
     this.redis.on('ready', () => {
-      this.logger.log(`Connected to Redis at ${this.config.redis.host}:${this.config.redis.port}`);
+      this.logger.log(`Connected to Redis at ${this.config.host}:${this.config.port}`);
     });
 
     this.redis.on('error', (err) => {

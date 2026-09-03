@@ -26,6 +26,7 @@ enum ActivationStatus {
 model User {
   id               Int              @id @default(autoincrement())
   phoneNumber      String           @unique @map("phone_number")
+  email            String           @unique
   name             String
   role             Role
   passwordHash     String?          @map("password_hash")
