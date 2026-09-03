@@ -21,4 +21,4 @@ import { RefreshTokenModule } from '@/refresh-token/refresh-token.module';
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy, LocalStrategy, LocalAuthGuard, JwtAuthGuard],
 })
-export class AuthModule { }
+export class AuthModule {}
