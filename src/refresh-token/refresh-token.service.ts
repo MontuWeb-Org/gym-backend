@@ -12,7 +12,7 @@ export class RefreshTokenService {
     private readonly refreshTokenRepository: RefreshTokenRepository,
     @Inject(refreshTokenConfig.KEY)
     private readonly config: ConfigType<typeof refreshTokenConfig>,
-  ) {}
+  ) { }
 
   private generateRefreshTokenWithExpiry(expiryInDays: number) {
     const refreshToken = crypto.randomBytes(64).toString('hex');

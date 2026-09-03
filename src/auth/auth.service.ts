@@ -12,15 +12,7 @@ export class AuthService {
     private readonly prisma: PrismaService,
     private readonly refreshTokenService: RefreshTokenService,
     private readonly userService: UserService,
-  ) {}
-
-  private generateRefreshTokenWithExpiry(expiryInDays: number) {
-    const refreshToken = crypto.randomBytes(64).toString('hex');
-    const expiresAt = new Date();
-    const hashedRefreshToken = this.refreshTokenService.hashStringDeterministic(refreshToken);
-    expiresAt.setDate(expiresAt.getDate() + expiryInDays);
-    return { refreshToken, hashedRefreshToken, expiresAt };
-  }
+  ) { }
 
   async validateUser(identifier: string, password: string): Promise<CustomJwtPayload | null> {
     const user = await this.userService.findUserByEmail(identifier);

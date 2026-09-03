@@ -11,4 +11,4 @@ import refreshTokenConfig from './refresh-token.config';
   providers: [RefreshTokenService, RefreshTokenRepository],
   exports: [RefreshTokenService],
 })
-export class RefreshTokenModule {}
+export class RefreshTokenModule { }

@@ -4,7 +4,7 @@ import { RefreshToken } from '@/refresh-token/interfaces';
 
 @Injectable()
 export class RefreshTokenRepository {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(private readonly prismaService: PrismaService) { }
 
   async create(refreshToken: RefreshToken) {
     return await this.prismaService.refreshToken.create({
