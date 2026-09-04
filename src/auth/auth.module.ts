@@ -13,6 +13,8 @@ import { MailModule } from '@/mail/mail.module';
 import { OtpModule } from '@/otp/otp.module';
 import { TrainerRegisterService } from './trainer-register.service';
 import { TrainerRegisterRepository } from './trainer-register.repository';
+import { TraineeInviteService } from './trainee-invite.service';
+import { TraineeInviteRepository } from './trainee-invite.repository';
 
 @Module({
   imports: [
@@ -33,6 +35,8 @@ import { TrainerRegisterRepository } from './trainer-register.repository';
     JwtAuthGuard,
     TrainerRegisterService,
     TrainerRegisterRepository,
+    TraineeInviteService,
+    TraineeInviteRepository,
   ],
 })
 export class AuthModule {}
