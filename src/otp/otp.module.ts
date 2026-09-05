@@ -7,6 +7,6 @@ import { OtpService } from './otp.service';
 @Module({
   imports: [ConfigModule.forFeature(otpConfig)],
   providers: [OtpService],
-  exports: [OtpService],
+  exports: [OtpService, ConfigModule],
 })
 export class OtpModule {}
